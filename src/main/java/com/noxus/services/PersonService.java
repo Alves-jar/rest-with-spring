@@ -3,21 +3,20 @@ package com.noxus.services;
 import com.noxus.exception.ResourceNotFoundException;
 import com.noxus.model.Person;
 import com.noxus.repository.PersonRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Logger;
 
 @Service
 public class PersonService {
 
     private final AtomicLong counter = new AtomicLong();
 
-    private Logger logger = Logger.getLogger(PersonService.class.getName());
+    private Logger logger = LoggerFactory.getLogger(PersonService.class.getName());
 
     @Autowired
     PersonRepository repository;
