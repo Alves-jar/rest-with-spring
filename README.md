@@ -1,8 +1,8 @@
 # REST with Spring Boot — Em Construção
 
-> **⚠️Este projeto está ativamente em desenvolvimento.** Funcionalidades podem ser adicionadas, alteradas ou removidas a qualquer momento.
+> **⚠️ Este projeto está ativamente em desenvolvimento.** Funcionalidades podem ser adicionadas, alteradas ou removidas a qualquer momento.
 
-API RESTful desenvolvida com **Spring Boot 3**, aplicando boas práticas de desenvolvimento como content negotiation, HATEOAS, versionamento de banco de dados com Flyway e documentação automática com Swagger/OpenAPI.
+API RESTful desenvolvida com **Spring Boot 3**, aplicando boas práticas de desenvolvimento como content negotiation, HATEOAS, paginação com ordenação, busca por nome, desativação de registros via PATCH, testes de integração com Testcontainers e documentação automática com Swagger/OpenAPI.
 
 ---
 
@@ -19,6 +19,8 @@ API RESTful desenvolvida com **Spring Boot 3**, aplicando boas práticas de dese
 | SpringDoc OpenAPI (Swagger) | 2.7.0 |
 | Dozer Mapper | 7.0.0 |
 | Jackson (JSON / XML / YAML) | — |
+| Testcontainers | 1.20.4 |
+| REST Assured | — |
 
 ---
 
@@ -32,6 +34,7 @@ src/main/java/com/noxus/
 ├── controllers/
 │   ├── PersonController.java       # Endpoints de Person
 │   ├── BookController.java         # Endpoints de Book
+│   ├── TestLogController.java      # Endpoint de teste de logs (SLF4J)
 │   └── docs/                       # Interfaces com anotações OpenAPI
 ├── services/
 │   ├── PersonServices.java
@@ -62,7 +65,44 @@ src/main/resources/
     ├── V1__Create_Table_Person.sql
     ├── V2__Populate_Table_Person.sql
     ├── V3__Create_Table_Books.sql
-    └── V4__Insert_Data_In_Books.sql
+    ├── V4__Insert_Data_In_Books.sql
+    ├── V5__Alter_Table_Person.sql  # Adiciona coluna enabled
+    └── V6__Populate_Person_With_Many.sql  # Popula tabela com 1000+ registros
+
+src/test/java/com/noxus/
+├── config/
+│   └── TestConfigs.java
+├── integrationtests/
+│   ├── controllers/
+│   │   ├── cors/withjson/
+│   │   │   └── PersonControllerCorsTest.java
+│   │   ├── withjson/
+│   │   │   ├── PersonControllerJsonTest.java
+│   │   │   └── BookControllerJsonTest.java
+│   │   ├── withxml/
+│   │   │   ├── PersonControllerXmlTest.java
+│   │   │   └── BookControllerXmlTest.java
+│   │   └── withyaml/
+│   │       ├── PersonControllerYamlTest.java
+│   │       ├── BookControllerYamlTest.java
+│   │       └── mapper/YAMLMapper.java
+│   ├── dto/
+│   │   ├── PersonDTO.java
+│   │   ├── BookDTO.java
+│   │   └── wrappers/               # Wrappers para paginação (JSON, XML, YAML)
+│   ├── swagger/
+│   │   └── SwaggerIntegrationTest.java
+│   └── testcontainers/
+│       └── AbstractIntegrationTest.java
+├── repository/
+│   └── PersonRepositoryTest.java
+└── unittests/
+    ├── mapper/
+    │   ├── ObjectMapperTests.java
+    │   └── mocks/
+    └── services/
+        ├── PersonServicesTest.java
+        └── BookServicesTest.java
 ```
 
 ---
@@ -70,13 +110,19 @@ src/main/resources/
 ## Funcionalidades Implementadas
 
 - CRUD completo para **Person** e **Book**
+- **Paginação e ordenação** — todos os endpoints de listagem aceitam `page`, `size` e `direction`
+- **Busca por nome** — `/api/person/v1/findPeopleByName/{firstName}` com paginação
+- **Desativação de Person** — `PATCH /api/person/v1/{id}` alterna o campo `enabled` sem excluir o registro
 - **Content Negotiation** via header `Accept` — suporte a JSON, XML e YAML
-- **HATEOAS** — respostas com hypermedia links
+- **HATEOAS** — respostas com hypermedia links e `PagedModel`
 - **Documentação automática** com Swagger UI (SpringDoc OpenAPI)
-- **Versionamento de banco de dados** com Flyway
+- **Versionamento de banco de dados** com Flyway (6 migrations)
 - **Mapeamento DTO ↔ Entidade** com Dozer Mapper
 - **Tratamento global de exceções** com `@RestControllerAdvice`
-- Testes unitários para services e mappers (JUnit/Mockito)
+- **Testes unitários** para services e mappers (JUnit/Mockito)
+- **Testes de integração** com Testcontainers + REST Assured (JSON, XML, YAML)
+- **Testes de CORS** para validar origens permitidas
+- **Endpoint de log** para testes de níveis DEBUG, INFO, WARN e ERROR (SLF4J)
 
 ---
 
@@ -86,21 +132,29 @@ src/main/resources/
 
 | Método | Rota | Descrição |
 |---|---|---|
-| `GET` | `/api/person/v1` | Lista todas as pessoas |
+| `GET` | `/api/person/v1` | Lista pessoas com paginação (`page`, `size`, `direction`) |
 | `GET` | `/api/person/v1/{id}` | Busca pessoa por ID |
+| `GET` | `/api/person/v1/findPeopleByName/{firstName}` | Busca pessoas por nome com paginação |
 | `POST` | `/api/person/v1` | Cria uma nova pessoa |
 | `PUT` | `/api/person/v1` | Atualiza uma pessoa |
+| `PATCH` | `/api/person/v1/{id}` | Ativa ou desativa uma pessoa (campo `enabled`) |
 | `DELETE` | `/api/person/v1/{id}` | Remove uma pessoa |
 
 ### Book — `/api/book/v1`
 
 | Método | Rota | Descrição |
 |---|---|---|
-| `GET` | `/api/book/v1` | Lista todos os livros |
+| `GET` | `/api/book/v1` | Lista livros com paginação (`page`, `size`, `direction`) |
 | `GET` | `/api/book/v1/{id}` | Busca livro por ID |
 | `POST` | `/api/book/v1` | Cria um novo livro |
 | `PUT` | `/api/book/v1` | Atualiza um livro |
 | `DELETE` | `/api/book/v1/{id}` | Remove um livro |
+
+### Utilitário — `/api/test/v1`
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/api/test/v1` | Gera logs em todos os níveis (DEBUG, INFO, WARN, ERROR) |
 
 ---
 
@@ -111,6 +165,7 @@ src/main/resources/
 - Java 21+
 - Maven 3.x
 - MySQL 8+
+- Docker (necessário para rodar os testes de integração com Testcontainers)
 
 ### Banco de dados
 
@@ -160,8 +215,11 @@ http://localhost:8080/swagger-ui/index.html
 ## Testes
 
 ```bash
+# Todos os testes (unitários + integração)
 mvn test
 ```
+
+> Os testes de integração sobem um container MySQL automaticamente via **Testcontainers**. É necessário ter o Docker rodando.
 
 ---
 
@@ -170,17 +228,20 @@ mvn test
 - [x] CRUD de Person
 - [x] CRUD de Book
 - [x] Content Negotiation (JSON, XML, YAML)
-- [x] HATEOAS
+- [x] HATEOAS com `PagedModel`
+- [x] Paginação e ordenação
+- [x] Busca por nome com paginação
+- [x] Desativação de Person via PATCH
 - [x] Swagger / OpenAPI
 - [x] Flyway migrations
 - [x] Testes unitários
+- [x] Testes de integração com Testcontainers + REST Assured
+- [x] Testes de CORS
 - [ ] Autenticação e autorização (JWT)
-- [ ] Testes de integração
-- [ ] Paginação e ordenação
 - [ ] Dockerização
 
 ---
 
-##  Licença
+## Licença
 
 Distribuído sob a licença **Apache 2.0**. Veja [LICENSE](https://www.apache.org/licenses/LICENSE-2.0) para mais informações.
