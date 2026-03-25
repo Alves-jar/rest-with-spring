@@ -1,0 +1,28 @@
+package com.noxus.file.importer.factory;
+
+import com.noxus.exception.BadRequestException;
+import com.noxus.file.importer.contract.FileImporter;
+import com.noxus.file.importer.impl.CsvImporter;
+import com.noxus.file.importer.impl.XlsxImporter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
+@Component
+public class FileImporterFactory {
+
+    private Logger logger = LoggerFactory.getLogger(FileImporterFactory.class);
+
+    private ApplicationContext context;
+
+    public FileImporter getImporter(String fileName) throws Exception {
+        if (fileName.endsWith(".xlsx")) {
+            return context.getBean(XlsxImporter.class);
+        } else if (fileName.endsWith(".csv")) {
+            return context.getBean(CsvImporter.class);
+        } else {
+            throw new BadRequestException("Invalid file format");
+        }
+    }
+}
