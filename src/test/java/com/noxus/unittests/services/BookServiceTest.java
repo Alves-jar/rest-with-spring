@@ -1,12 +1,11 @@
 package com.noxus.unittests.services;
 
-import com.noxus.data.dto.PersonDTO;
+import com.noxus.data.dto.BookDTO;
 import com.noxus.exception.RequiredObjectIsNullException;
-import com.noxus.model.Person;
-import com.noxus.repository.PersonRepository;
-import com.noxus.services.PersonServices;
-import com.noxus.unittests.mapper.mocks.MockPerson;
-
+import com.noxus.model.Book;
+import com.noxus.repository.BookRepository;
+import com.noxus.services.BookService;
+import com.noxus.unittests.mapper.mocks.MockBook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -33,31 +32,32 @@ import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockitoExtension.class)
-class PersonServicesTest {
+class BookServiceTest {
 
-    MockPerson input;
+    MockBook input;
 
     @InjectMocks
-    private PersonServices service;
+    private BookService service;
 
     @Mock
-    PersonRepository repository;
+    BookRepository repository;
+
 
     @Mock
-    PagedResourcesAssembler<PersonDTO> assembler;
+    PagedResourcesAssembler<BookDTO> assembler;
 
     @BeforeEach
     void setUp() {
-        input = new MockPerson();
+        input = new MockBook();
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
     void findById() {
 
-        Person person = input.mockEntity(1);
-        person.setId(1L);
-        when(repository.findById(1L)).thenReturn(Optional.of(person));
+        Book book = input.mockEntity(1);
+        book.setId(1L);
+        when(repository.findById(1L)).thenReturn(Optional.of(book));
 
         var result = service.findById(1L);
 
@@ -67,53 +67,52 @@ class PersonServicesTest {
 
         assertNotNull(result.getLinks().stream()
             .anyMatch(link -> link.getRel().value().equals("self")
-                    && link.getHref().endsWith("/api/person/v1/1")
+                    && link.getHref().endsWith("/api/book/v1/1")
                     && link.getType().equals("GET")
             ));
 
         assertNotNull(result.getLinks().stream()
             .anyMatch(link -> link.getRel().value().equals("findAll")
-                    && link.getHref().endsWith("/api/person/v1")
+                    && link.getHref().endsWith("/api/book/v1")
                     && link.getType().equals("GET")
             )
         );
 
         assertNotNull(result.getLinks().stream()
             .anyMatch(link -> link.getRel().value().equals("create")
-                    && link.getHref().endsWith("/api/person/v1")
+                    && link.getHref().endsWith("/api/book/v1")
                     && link.getType().equals("POST")
             )
         );
 
         assertNotNull(result.getLinks().stream()
             .anyMatch(link -> link.getRel().value().equals("update")
-                    && link.getHref().endsWith("/api/person/v1")
+                    && link.getHref().endsWith("/api/book/v1")
                     && link.getType().equals("PUT")
             )
         );
 
         assertNotNull(result.getLinks().stream()
             .anyMatch(link -> link.getRel().value().equals("delete")
-                    && link.getHref().endsWith("/api/person/v1/1")
+                    && link.getHref().endsWith("/api/book/v1/1")
                     && link.getType().equals("DELETE")
             )
         );
 
-        assertEquals("Address Test1", result.getAddress());
-        assertEquals("First Name Test1", result.getFirstName());
-        assertEquals("Last Name Test1", result.getLastName());
-        assertEquals("Female", result.getGender());
+        assertEquals("Some Author1", result.getAuthor());
+        assertEquals(25D, result.getPrice());
+        assertEquals("Some Title1", result.getTitle());
+        assertNotNull(result.getLaunchDate());
     }
 
     @Test
     void create() {
-        Person person = input.mockEntity(1);
-        Person persisted = person;
-        persisted.setId(1L);
 
-        PersonDTO dto = input.mockDTO(1);
+        BookDTO dto = input.mockDTO(1);
 
-        when(repository.save(person)).thenReturn(persisted);
+        Book entity = input.mockEntity(1);
+
+        when(repository.save(any(Book.class))).thenReturn(entity);
 
         var result = service.create(dto);
 
@@ -123,46 +122,46 @@ class PersonServicesTest {
 
         assertNotNull(result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("self")
-                        && link.getHref().endsWith("/api/person/v1/1")
+                        && link.getHref().endsWith("/api/book/v1/1")
                         && link.getType().equals("GET")
                 ));
 
         assertNotNull(result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("findAll")
-                        && link.getHref().endsWith("/api/person/v1")
+                        && link.getHref().endsWith("/api/book/v1")
                         && link.getType().equals("GET")
                 )
         );
 
         assertNotNull(result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("create")
-                        && link.getHref().endsWith("/api/person/v1")
+                        && link.getHref().endsWith("/api/book/v1")
                         && link.getType().equals("POST")
                 )
         );
 
         assertNotNull(result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("update")
-                        && link.getHref().endsWith("/api/person/v1")
+                        && link.getHref().endsWith("/api/book/v1")
                         && link.getType().equals("PUT")
                 )
         );
 
         assertNotNull(result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("delete")
-                        && link.getHref().endsWith("/api/person/v1/1")
+                        && link.getHref().endsWith("/api/book/v1/1")
                         && link.getType().equals("DELETE")
                 )
         );
 
-        assertEquals("Address Test1", result.getAddress());
-        assertEquals("First Name Test1", result.getFirstName());
-        assertEquals("Last Name Test1", result.getLastName());
-        assertEquals("Female", result.getGender());
+        assertEquals("Some Author1", result.getAuthor());
+        assertEquals(25D, result.getPrice());
+        assertEquals("Some Title1", result.getTitle());
+        assertNotNull(result.getLaunchDate());
     }
 
     @Test
-    void testCreateWithNullPerson() {
+    void testCreateWithNullBook() {
         Exception exception = assertThrows(RequiredObjectIsNullException.class,
         () -> {
             service.create(null);
@@ -176,14 +175,14 @@ class PersonServicesTest {
 
     @Test
     void update() {
-        Person person = input.mockEntity(1);
-        Person persisted = person;
+        Book book = input.mockEntity(1);
+        Book persisted = book;
         persisted.setId(1L);
 
-        PersonDTO dto = input.mockDTO(1);
+        BookDTO dto = input.mockDTO(1);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(person));
-        when(repository.save(person)).thenReturn(persisted);
+        when(repository.findById(1L)).thenReturn(Optional.of(book));
+        when(repository.save(book)).thenReturn(persisted);
 
         var result = service.update(dto);
 
@@ -193,46 +192,46 @@ class PersonServicesTest {
 
         assertNotNull(result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("self")
-                        && link.getHref().endsWith("/api/person/v1/1")
+                        && link.getHref().endsWith("/api/book/v1/1")
                         && link.getType().equals("GET")
                 ));
 
         assertNotNull(result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("findAll")
-                        && link.getHref().endsWith("/api/person/v1")
+                        && link.getHref().endsWith("/api/book/v1")
                         && link.getType().equals("GET")
                 )
         );
 
         assertNotNull(result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("create")
-                        && link.getHref().endsWith("/api/person/v1")
+                        && link.getHref().endsWith("/api/book/v1")
                         && link.getType().equals("POST")
                 )
         );
 
         assertNotNull(result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("update")
-                        && link.getHref().endsWith("/api/person/v1")
+                        && link.getHref().endsWith("/api/book/v1")
                         && link.getType().equals("PUT")
                 )
         );
 
         assertNotNull(result.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("delete")
-                        && link.getHref().endsWith("/api/person/v1/1")
+                        && link.getHref().endsWith("/api/book/v1/1")
                         && link.getType().equals("DELETE")
                 )
         );
 
-        assertEquals("Address Test1", result.getAddress());
-        assertEquals("First Name Test1", result.getFirstName());
-        assertEquals("Last Name Test1", result.getLastName());
-        assertEquals("Female", result.getGender());
+        assertEquals("Some Author1", result.getAuthor());
+        assertEquals(25D, result.getPrice());
+        assertEquals("Some Title1", result.getTitle());
+        assertNotNull(result.getLaunchDate());
     }
 
     @Test
-    void testUpdateWithNullPerson() {
+    void testUpdateWithNullBook() {
         Exception exception = assertThrows(RequiredObjectIsNullException.class,
                 () -> {
                     service.update(null);
@@ -246,101 +245,100 @@ class PersonServicesTest {
 
     @Test
     void delete() {
-        Person person = input.mockEntity(1);
-        person.setId(1L);
-        when(repository.findById(1L)).thenReturn(Optional.of(person));
+        Book book = input.mockEntity(1);
+        book.setId(1L);
+        when(repository.findById(1L)).thenReturn(Optional.of(book));
 
         service.delete(1L);
         verify(repository, times(1)).findById(anyLong());
-        verify(repository, times(1)).delete(any(Person.class));
+        verify(repository, times(1)).delete(any(Book.class));
         verifyNoMoreInteractions(repository);
     }
 
     @Test
     void findAll() {
-
         // Mocking repository access
-        List<Person> mockEntityList = input.mockEntityList();
-        Page<Person> mockPage = new PageImpl<>(mockEntityList);
+        List<Book> mockEntityList = input.mockEntityList();
+        Page<Book> mockPage = new PageImpl<>(mockEntityList);
         when(repository.findAll(any(Pageable.class))).thenReturn(mockPage);
 
-        List<PersonDTO> mockDtoList = input.mockDTOList();
+        List<BookDTO> mockDtoList = input.mockDTOList();
 
         // Mocking assembler
-        // assembler.toModel(peopleWithLinks, findAllLink);
-        List<EntityModel<PersonDTO>> entityModels = mockDtoList.stream()
-            .map(EntityModel::of)
-            .collect(Collectors.toList());
+        // assembler.toModel(booksWithLinks, findAllLink);
+        List<EntityModel<BookDTO>> entityModels = mockDtoList.stream()
+                .map(EntityModel::of)
+                .collect(Collectors.toList());
 
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
-            mockPage.getSize(),
-            mockPage.getNumber(),
-            mockPage.getTotalElements(),
-            mockPage.getTotalPages()
+                mockPage.getSize(),
+                mockPage.getNumber(),
+                mockPage.getTotalElements(),
+                mockPage.getTotalPages()
         );
 
-        PagedModel<EntityModel<PersonDTO>> mockPagedModel = PagedModel.of(entityModels, pageMetadata);
+        PagedModel<EntityModel<BookDTO>> mockPagedModel = PagedModel.of(entityModels, pageMetadata);
         when(assembler.toModel(any(Page.class), any(Link.class))).thenReturn(mockPagedModel);
 
 
         // Executing fid all
-        PagedModel<EntityModel<PersonDTO>> result = service.findAll(PageRequest.of(0, 14));
+        PagedModel<EntityModel<BookDTO>> result = service.findAll(PageRequest.of(0, 14));
 
-        List<PersonDTO> people = result.getContent()
-            .stream()
+        List<BookDTO> books = result.getContent()
+                .stream()
                 .map(EntityModel::getContent)
                 .collect(Collectors.toList());
 
-        assertNotNull(people);
-        assertEquals(14, people.size());
+        assertNotNull(books);
+        assertEquals(14, books.size());
 
-        validateIndividualPerson(people.get(1), 1);
-        validateIndividualPerson(people.get(4), 4);
-        validateIndividualPerson(people.get(7), 7);
+        validateIndividualBook(books.get(1), 1);
+        validateIndividualBook(books.get(4), 4);
+        validateIndividualBook(books.get(7), 7);
     }
 
-    private static void validateIndividualPerson(PersonDTO person, int i) {
-        assertNotNull(person);
-        assertNotNull(person.getId());
-        assertNotNull(person.getLinks());
+    private static void validateIndividualBook(BookDTO book, int i) {
+        assertNotNull(book);
+        assertNotNull(book.getId());
+        assertNotNull(book.getLinks());
 
-        assertNotNull(person.getLinks().stream()
+        assertNotNull(book.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("self")
-                        && link.getHref().endsWith("/api/person/v1/" + i)
+                        && link.getHref().endsWith("/api/book/v1/" + i)
                         && link.getType().equals("GET")
                 ));
 
-        assertNotNull(person.getLinks().stream()
+        assertNotNull(book.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("findAll")
-                        && link.getHref().endsWith("/api/person/v1")
+                        && link.getHref().endsWith("/api/book/v1")
                         && link.getType().equals("GET")
                 )
         );
 
-        assertNotNull(person.getLinks().stream()
+        assertNotNull(book.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("create")
-                        && link.getHref().endsWith("/api/person/v1")
+                        && link.getHref().endsWith("/api/book/v1")
                         && link.getType().equals("POST")
                 )
         );
 
-        assertNotNull(person.getLinks().stream()
+        assertNotNull(book.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("update")
-                        && link.getHref().endsWith("/api/person/v1")
+                        && link.getHref().endsWith("/api/book/v1")
                         && link.getType().equals("PUT")
                 )
         );
 
-        assertNotNull(person.getLinks().stream()
+        assertNotNull(book.getLinks().stream()
                 .anyMatch(link -> link.getRel().value().equals("delete")
-                        && link.getHref().endsWith("/api/person/v1/" + i)
+                        && link.getHref().endsWith("/api/book/v1/" + i)
                         && link.getType().equals("DELETE")
                 )
         );
 
-        assertEquals("Address Test" + i, person.getAddress());
-        assertEquals("First Name Test" + i, person.getFirstName());
-        assertEquals("Last Name Test" + i, person.getLastName());
-        assertEquals(((i % 2)==0) ? "Male" : "Female", person.getGender());
+        assertEquals("Some Author" + i, book.getAuthor());
+        assertEquals(25D, book.getPrice());
+        assertEquals("Some Title" + i, book.getTitle());
+        assertNotNull(book.getLaunchDate());
     }
 }

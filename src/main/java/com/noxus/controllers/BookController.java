@@ -2,7 +2,7 @@ package com.noxus.controllers;
 
 import com.noxus.controllers.docs.BookControllerDocs;
 import com.noxus.data.dto.BookDTO;
-import com.noxus.services.BookServices;
+import com.noxus.services.BookService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class BookController implements BookControllerDocs {
 
     @Autowired
-    private BookServices service;
+    private BookService service;
 
     @GetMapping(
         produces = {

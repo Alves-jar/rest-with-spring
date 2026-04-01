@@ -2,7 +2,7 @@ package com.noxus.controllers;
 
 import com.noxus.controllers.docs.FileControllerDocs;
 import com.noxus.data.dto.UploadFileResponseDTO;
-import com.noxus.services.FileStorageServices;
+import com.noxus.services.FileStorageService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class FileController implements FileControllerDocs {
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
     @Autowired
-    private FileStorageServices service;
+    private FileStorageService service;
 
     @PostMapping("/uploadFile")
     @Override

@@ -1,7 +1,6 @@
 package com.noxus.services;
 
 import com.noxus.config.FileStorageConfig;
-import com.noxus.controllers.FileController;
 import com.noxus.exception.FileNotFoundException;
 import com.noxus.exception.FileStorageException;
 import org.slf4j.Logger;
@@ -20,13 +19,13 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 @Service
-public class FileStorageServices {
+public class FileStorageService {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileStorageServices.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileStorageService.class);
     private final Path fileStorageLocation;
 
     @Autowired
-    public FileStorageServices(FileStorageConfig fileStorageConfig) {
+    public FileStorageService(FileStorageConfig fileStorageConfig) {
         this.fileStorageLocation = Paths.get(fileStorageConfig.getUploadDir())
             .toAbsolutePath().normalize();
 

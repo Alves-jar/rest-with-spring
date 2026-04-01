@@ -3,7 +3,7 @@ package com.noxus.controllers;
 import com.noxus.controllers.docs.PersonControllerDocs;
 import com.noxus.data.dto.PersonDTO;
 import com.noxus.file.exporter.MediaTypes;
-import com.noxus.services.PersonServices;
+import com.noxus.services.PersonService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ import java.util.Map;
 public class PersonController implements PersonControllerDocs {
 
     @Autowired
-    private PersonServices service;
+    private PersonService service;
 
     @GetMapping(
         produces = {
