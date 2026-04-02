@@ -5,7 +5,6 @@ import com.noxus.data.dto.security.TokenDTO;
 import com.noxus.repository.UserRepository;
 import com.noxus.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,7 +22,7 @@ public class AuthService {
     @Autowired
     private UserRepository repository;
 
-    public TokenDTO signin(AccountCredentialsDTO credentials) {
+    public TokenDTO signIn(AccountCredentialsDTO credentials) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
             credentials.getUsername(),
             credentials.getPassword()
