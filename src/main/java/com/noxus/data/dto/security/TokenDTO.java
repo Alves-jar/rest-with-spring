@@ -11,7 +11,7 @@ public class TokenDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String username;
-    private Boolean authenticator;
+    private Boolean authenticated;
     private Date created;
     private Date expiration;
     private String accessToken;
@@ -20,9 +20,9 @@ public class TokenDTO implements Serializable {
     public TokenDTO() {
     }
 
-    public TokenDTO(String username, Boolean authenticator, Date created, Date expiration, String accessToken, String refreshToken) {
+    public TokenDTO(String username, Boolean authenticated, Date created, Date expiration, String accessToken, String refreshToken) {
         this.username = username;
-        this.authenticator = authenticator;
+        this.authenticated = authenticated;
         this.created = created;
         this.expiration = expiration;
         this.accessToken = accessToken;
@@ -37,12 +37,12 @@ public class TokenDTO implements Serializable {
         this.username = username;
     }
 
-    public Boolean getAuthenticator() {
-        return authenticator;
+    public Boolean getAuthenticated() {
+        return authenticated;
     }
 
-    public void setAuthenticator(Boolean authenticator) {
-        this.authenticator = authenticator;
+    public void setAuthenticated(Boolean authenticated) {
+        this.authenticated = authenticated;
     }
 
     public Date getCreated() {
@@ -80,11 +80,11 @@ public class TokenDTO implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof TokenDTO tokenDTO)) return false;
-        return Objects.equals(username, tokenDTO.username) && Objects.equals(authenticator, tokenDTO.authenticator) && Objects.equals(created, tokenDTO.created) && Objects.equals(expiration, tokenDTO.expiration) && Objects.equals(accessToken, tokenDTO.accessToken) && Objects.equals(refreshToken, tokenDTO.refreshToken);
+        return Objects.equals(username, tokenDTO.username) && Objects.equals(authenticated, tokenDTO.authenticated) && Objects.equals(created, tokenDTO.created) && Objects.equals(expiration, tokenDTO.expiration) && Objects.equals(accessToken, tokenDTO.accessToken) && Objects.equals(refreshToken, tokenDTO.refreshToken);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, authenticator, created, expiration, accessToken, refreshToken);
+        return Objects.hash(username, authenticated, created, expiration, accessToken, refreshToken);
     }
 }

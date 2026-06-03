@@ -2,32 +2,29 @@ package com.noxus.integrationtests.dto;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
 @XmlRootElement
 public class AccountCredentialsDTO implements Serializable {
 
-    @Serial
     private static final long serialVersionUID = 1L;
 
     private String username;
     private String password;
     private String fullname;
 
-    public AccountCredentialsDTO() {
+    public AccountCredentialsDTO() {}
+
+    public AccountCredentialsDTO(String username, String password) {
+        this.username = username;
+        this.password = password;
     }
 
     public AccountCredentialsDTO(String username, String password, String fullname) {
         this.username = username;
         this.password = password;
         this.fullname = fullname;
-    }
-
-    public AccountCredentialsDTO(String username, String password) {
-        this.username = username;
-        this.password = password;
     }
 
     public String getUsername() {
@@ -56,12 +53,13 @@ public class AccountCredentialsDTO implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof AccountCredentialsDTO that)) return false;
-        return Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(fullname, that.fullname);
+        if (o == null || getClass() != o.getClass()) return false;
+        AccountCredentialsDTO that = (AccountCredentialsDTO) o;
+        return Objects.equals(getUsername(), that.getUsername()) && Objects.equals(getPassword(), that.getPassword()) && Objects.equals(getFullname(), that.getFullname());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, password, fullname);
+        return Objects.hash(getUsername(), getPassword(), getFullname());
     }
 }
