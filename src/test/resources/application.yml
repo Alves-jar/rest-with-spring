@@ -3,7 +3,7 @@ server:
 cors:
   originPatterns: http://localhost:8080,http://localhost:3000,https://www.erudio.com.br
 file:
-  upload-dir: /Code/UploadDir
+  upload-dir: /home/runner/work/rest-with-spring/UploadDir
 security:
   jwt:
     token:
@@ -15,7 +15,7 @@ security:
 
 spring:
   application:
-    name: rest-with-spring-boot-and-java-erudio
+    name: rest-with-spring
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
