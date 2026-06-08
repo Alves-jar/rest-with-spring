@@ -24,16 +24,18 @@ jobs:
           distribution: "temurin"
           cache: maven
 
-      - name: Build application .jar
-        working-directory: "./"
-        run: mvn clean package
+      - name: Start containers
+        run: docker compose up -d
 
-      - name: Docker compose build
-        run: docker compose build
+      - name: Wait for containers
+        run: sleep 20
+
+      - name: Build application
+        run: mvn clean package
 
       - name: Push to docker hub container registry
         run: |
           docker tag ${{ secrets.DOCKER_USERNAME }}/rest-with-spring:latest ${{ secrets.DOCKER_USERNAME }}/rest-with-spring:${{ github.run_id }}
-          
+
           docker push ${{ secrets.DOCKER_USERNAME }}/rest-with-spring:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/rest-with-spring:${{ github.run_id }}
