@@ -8,14 +8,13 @@ security:
   jwt:
     token:
       secret-key: 53cr37
-      expire-length: 3600000
-  email:
-    subject: "Default Subject"
-    message: "Default Message"
-
+      expire-lenght: 3600000
+email:
+  subject: "Default Subject"
+  message: "Default Message"
 spring:
   application:
-    name: rest-with-spring
+    name: rest-with-spring-boot-and-java-erudio
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
@@ -47,7 +46,7 @@ logging:
     # br.com.erudio: DEBUG
 spring-doc:
   paths-to-match:
-  - /auth/**
-  - /api/**/v1/**
+    - /auth/**
+    - /api/**/v1/**
   swagger-ui:
     use-root-path: true
